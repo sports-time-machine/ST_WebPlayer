@@ -50,16 +50,13 @@ namespace SportsTimeMachinePlayer.VoxcelTransformer
 		/// <param name="frame">フレーム.</param>
 		public List<Vector3> GetVocelList(Frame frame)
 		{
-			int dots = RESOLUTION_WIDTH * RESOLUTION_HEIGHT;
-			List<int> depthList = frame.GetDepthList (dots * 2);
+			UnitDepth unitDepth = frame.GetDepthList();
 
 			List<Vector3> voxcels = new List<Vector3>();
 
-			if (depthList.Count == 0) return voxcels;
+			List<Depth> screen1DepthList = unitDepth.DepthList1;
+			List<Depth> screen2DepthList = unitDepth.DepthList2;
 
-			List<int> screen1DepthList = depthList.GetRange (0, dots);
-			List<int> screen2DepthList = depthList.GetRange (dots, dots);
-	
 			voxcels.AddRange(GetScreenVoxcels(camera1Info, screen1DepthList));
 			voxcels.AddRange(GetScreenVoxcels(camera2Info, screen2DepthList));
 			return voxcels;
@@ -71,13 +68,27 @@ namespace SportsTimeMachinePlayer.VoxcelTransformer
 		/// <returns>ボクセルのリスト</returns>
 		/// <param name="camera">カメラ情報.</param>
 		/// <param name="depthList">深度情報のリスト.</param>
-		private List<Vector3> GetScreenVoxcels(CameraInfo camera, List<int> depthList){
+		private List<Vector3> GetScreenVoxcels(CameraInfo camera, List<Depth> depthList){
 
-			int index = 0;
-			
-			List<Vector3> voxcels = new List<Vector3>();
+			List<Vector3> voxcels = new List<Vector3>(depthList.Count);
 			Matrix4x4 camMatrix = camera.GetMatrix();
-			
+
+			for (int i = 0; i < depthList.Count; ++i){
+				Depth depth = depthList[i];
+
+							
+				Vector3 vec = new Vector3(
+					(((RESOLUTION_WIDTH/2)- depth.X)/(float)RESOLUTION_WIDTH),
+					(((RESOLUTION_HEIGHT/2)- depth.Y)/(float)RESOLUTION_HEIGHT),
+					depth.Value/1000.0f
+				);
+				
+				Vector4 vec4 = new Vector4(vec.x * vec.z,vec.y * vec.z, vec.z,1.0f);
+				Vector4 point = camMatrix * vec4;
+				voxcels.Add(new Vector3(point.x, point.y, point.z));
+			}
+
+			/*
 			for(int y=0; y<RESOLUTION_HEIGHT; ++y){
 				for (int x=0; x<RESOLUTION_WIDTH; ++x){
 					
@@ -99,7 +110,8 @@ namespace SportsTimeMachinePlayer.VoxcelTransformer
 					Vector4 point = camMatrix * vec4;
 					voxcels.Add(new Vector3(point.x, point.y, point.z));
 				}
-			}
+			}*/
+
 			return voxcels;
 		}
 	}

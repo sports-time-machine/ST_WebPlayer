@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using UnityEngine;
+using System.Collections.Generic;
 using SportsTimeMachinePlayer.Reader;
+using SportsTimeMachinePlayer.Model;
 
 namespace SportsTimeMachinePlayer.CompressFormat
 {
@@ -11,6 +13,15 @@ namespace SportsTimeMachinePlayer.CompressFormat
 	/// </summary>
 	public class Format2D10BD6BL : ICompressFormat
 	{
+		private const int WIDTH = 640;
+		private const int HEIGHT = 480;
+		private const int DOT_COUNT = WIDTH * HEIGHT;
+
+		private int count;
+
+		private int X{get{return count % WIDTH;}}
+		private int Y{get{return (int)Math.Floor(count/(double)WIDTH);}}
+
 		public Format2D10BD6BL ()
 		{
 		}
@@ -24,34 +35,51 @@ namespace SportsTimeMachinePlayer.CompressFormat
 		}
 
 		/// <summary>
-		/// 圧縮された深度情報を解凍する.
+		/// 圧縮されたフレーム情報を解凍する.
 		/// </summary>
-		/// <param name="bytes">圧縮されたバイト列.</param>
-		public int[] Decompress(byte[] bytes)
+		/// <param name="bytes">圧縮されたフレーム情報.</param>
+		public UnitDepth Decompress(byte[] bytes)
 		{
-			int first = bytes[0];
-			int second = bytes[1];
-			
-			int runLength = (second >> 2) + 1;
-			int depth = ((first) | ((second&0x03) << 8)) * 2502 >> 8;
 
-			int[] decompressDepth = new int[runLength];
+			UnitDepth unitDepth = new UnitDepth(DOT_COUNT);
+			List<Depth> depthList = unitDepth.DepthList1;
 
-			for (int i = 0; i < runLength; ++i)
+			int size = bytes.Length;
+			count = 0;
+
+			for(int i=0; i < size; i+=2)
 			{
-				decompressDepth[i] = depth;
+				byte[] compressBytes = new byte[2];
+				for (int j = 0; j < 2; ++j){
+					compressBytes[j] = bytes[i + j];
+				}
+				
+				int first = compressBytes[0];
+				int second = compressBytes[1];
+				
+				int runLength = (second >> 2) + 1;
+				int depth = ((first) | ((second&0x03) << 8)) * 2502 >> 8;
+
+
+				if (depth == 0 || depth > 8.0f * 1000.0f){
+					count+=runLength;
+				}else{
+					for (int j = 0; j < runLength; ++j)
+					{
+						depthList.Add(new Depth(X,Y,depth));
+						count++;
+					}
+				}
+
+				if (count == DOT_COUNT){
+					depthList = unitDepth.DepthList2;
+					count=0;
+				}
 			}
-			return decompressDepth;
+
+			return unitDepth;
 		}
 
-		/// <summary>
-		/// 圧縮されたフォーマットのサイズを取得する.
-		/// </summary>
-		/// <returns>圧縮されたフォーマットのサイズ(byte).</returns>
-		public int GetCompressSize()
-		{
-			return 2;
-		}
 	}
 }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SportsTimeMachinePlayer.Model;
 
 namespace SportsTimeMachinePlayer.CompressFormat
 {
@@ -16,16 +17,11 @@ namespace SportsTimeMachinePlayer.CompressFormat
 		String GetFormatName();
 
 		/// <summary>
-		/// 圧縮された深度情報を解凍する.
+		/// 圧縮されたフレーム情報を解凍する.
 		/// </summary>
-		/// <param name="bytes">圧縮されたバイト列.</param>
-		int[] Decompress(byte[] bytes);
+		/// <param name="bytes">圧縮されたフレーム情報.</param>
+		UnitDepth Decompress(byte[] bytes);
 
-		/// <summary>
-		/// 圧縮されたフォーマットのサイズを取得する.
-		/// </summary>
-		/// <returns>圧縮されたフォーマットのサイズ(byte).</returns>
-		int GetCompressSize();
 	}
 }
 

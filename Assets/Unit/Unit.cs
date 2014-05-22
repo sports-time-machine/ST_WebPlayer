@@ -6,6 +6,7 @@ using System;
 using SportsTimeMachinePlayer.Reader;
 using SportsTimeMachinePlayer.Model;
 using SportsTimeMachinePlayer.VoxcelTransformer;
+using SportsTimeMachinePlayer.VoxcelFilter;
 
 namespace SportsTimeMachinePlayer.Unit
 {
@@ -20,16 +21,18 @@ namespace SportsTimeMachinePlayer.Unit
 		private List<Vector3> dots;
 		private List<Frame> frames;
 		private IVoxcelTransformer transformer;
-		private int frameCount;
+		public int MaxFrameCount{get;private set;}
+		public int FrameCount{get;private set;}
+		public int TotalMilliSecond{get;private set;}
+		public bool IsEnd{get;private set;}
 		private int totalFrames;
 		private Unit unit;
-		
-		// ロード完了イベント
-		public event EventHandler LoadCompleted = delegate(object s, EventArgs e){};
+
+		private ParticleSystem.Particle[] cloud;
 
 		// Use this for initialization
 		void Start () {
-			frameCount = 0;
+			FrameCount = 0;
 		}
 
 		/// <summary>
@@ -44,46 +47,36 @@ namespace SportsTimeMachinePlayer.Unit
 				reader.ReadCamera2Info ()
 			);
 			totalFrames = reader.ReadTotalFrames();
-
-			// ロード完了イベント発生
-			if (LoadCompleted != null) LoadCompleted(this, EventArgs.Empty);
+			MaxFrameCount = reader.ReadTotalFrames();
+			TotalMilliSecond = reader.ReadTotalMilliSeconds();
 		}
 
 		/// <summary>
 		/// データを再生する.
 		/// </summary>
-		public void Play() {
-
-			List<Vector3> oldDots = null;
-			if (dots != null){
-				oldDots = new List<Vector3>(dots);
+		public void Play(int frameCount) {
+			if (frameCount > totalFrames - 1){
+				IsEnd = true;
+				return;
 			}
-
-			dots = transformer.GetVocelList (frames[frameCount]); // unit.GetDepth (frameCount);
-			frameCount+=2;
-			if (frameCount > totalFrames - 1) frameCount = 0;
-			if (dots.Count == 0){
-				dots = oldDots;
-			}
+			dots = transformer.GetVocelList (frames[frameCount]);
+			if (dots.Count != 0) SetPoints(dots);
+			IsEnd = false;
 		}
-		
-		void OnRenderObject(){
+
+		public void Update(){
 			if  (dots == null || dots.Count == 0) return;
-			float size = 0.012f;
-
-			foreach(Vector3 vec in dots){
-				GL.PushMatrix();
-				voxcelMaterial.SetPass(0);
-				GL.Begin(GL.QUADS);
-				GL.Color(Color.magenta);
-				GL.Vertex3(transform.position.x + vec.x - size,transform.position.y + vec.y + size, transform.position.z + vec.z);
-				GL.Vertex3(transform.position.x + vec.x + size,transform.position.y + vec.y + size, transform.position.z + vec.z);
-				GL.Vertex3(transform.position.x + vec.x + size,transform.position.y + vec.y - size, transform.position.z + vec.z);
-				GL.Vertex3(transform.position.x + vec.x - size,transform.position.y + vec.y - size, transform.position.z + vec.z);
-				GL.End();
-				GL.PopMatrix();
-			}
-
+			particleSystem.SetParticles(cloud, cloud.Length);
 		}
+
+		public void SetPoints(List<Vector3> positions){
+			cloud = new ParticleSystem.Particle[positions.Count];
+			for (int i = 0; i < positions.Count; ++i){
+				cloud[i].position = positions[i];
+				cloud[i].color = new Color(255,0,255);
+				cloud[i].size = 0.03f;
+			}
+		}
+
 	}
 }

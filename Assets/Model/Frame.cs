@@ -45,23 +45,30 @@ namespace SportsTimeMachinePlayer.Model{
 		/// 圧縮されたフレーム情報を解凍し,深度情報のリストを取得する.
 		/// </summary>
 		/// <returns>深度情報</returns>
-		/// <param name="listSize">解凍後の深度情報のリストサイズ.</param>
-		public List<int> GetDepthList(int listSize )
+		/// <param name="prevBytes">前フレームの深度情報リスト.</param>
+		public UnitDepth GetDepthList()
 		{
+			return Format.Decompress(bytes);
+			/*
 			List<int> depthList = new List<int>(listSize);
 
 			int compressSize = Format.GetCompressSize();
 
 			for(int i=0; i < Size; i+=compressSize)
 			{
+			
 				byte[] compressBytes = new byte[compressSize];
 				for (int j = 0; j < compressSize; ++j){
 					compressBytes[j] = bytes[i + j];
 				}
-				depthList.AddRange(Format.Decompress(compressBytes));
+
+				int[] decompressDepthList = Format.Decompress(compressBytes);
+				depthList.AddRange(decompressDepthList);
+			
 			}
 
 			return depthList;
+			*/
 		}
 	}
 }

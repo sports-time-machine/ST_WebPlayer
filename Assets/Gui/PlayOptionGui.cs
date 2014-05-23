@@ -10,25 +10,29 @@ namespace SportsTimeMachinePlayer.Gui
 		private Rect position = new Rect(640-200,0,200,100);
 		public GUIStyle style;
 		private bool isDoubleFrame;
-		private UnitsController controller;
+		private PlayOption option;
+		private PlayStatus status;
 		
 		// Use this for initialization
 		void Start()
 		{
-			controller = (UnitsController)GameObject.Find("UnitsController").
-				GetComponent("UnitsController");
+			PlayManager manager = ((PlayManager)GameObject.Find("UnitsController").
+			          	GetComponent("PlayManager"));
+
+			option = manager.Option;
+			status = manager.Status;
 		}
 				
 		void OnGUI()
 		{
-			if (controller.IsPlayable){
+			if (status.IsPlayable){
 				GUILayout.Window(1, position, DrawWindow, "さいせいオプション");
 			}
 		}
 
 		private void DrawWindow(int id){
-			controller.Option.IsDoubleFrames = 
-				GUILayout.Toggle(controller.Option.IsDoubleFrames, "1フレームづつ飛ばす");
+			option.IsDoubleFrame = 
+				GUILayout.Toggle(option.IsDoubleFrame, "1フレームづつ飛ばす");
 		}
 	}
 }

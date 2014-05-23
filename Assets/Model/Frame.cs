@@ -8,7 +8,8 @@ namespace SportsTimeMachinePlayer.Model{
 
 	/// <summary>
 	/// フレーム情報を扱うクラス.
-	/// フレーム情報は圧縮された状態で格納されている.
+	/// フレーム情報は圧縮された状態で格納されており,そのままでは使用することができない.
+	/// GetDepthList関数を利用することにより,解凍された状態の深度リストを取得することが可能.
 	/// </summary>
 	public class Frame 
 	{
@@ -49,26 +50,6 @@ namespace SportsTimeMachinePlayer.Model{
 		public UnitDepth GetDepthList()
 		{
 			return Format.Decompress(bytes);
-			/*
-			List<int> depthList = new List<int>(listSize);
-
-			int compressSize = Format.GetCompressSize();
-
-			for(int i=0; i < Size; i+=compressSize)
-			{
-			
-				byte[] compressBytes = new byte[compressSize];
-				for (int j = 0; j < compressSize; ++j){
-					compressBytes[j] = bytes[i + j];
-				}
-
-				int[] decompressDepthList = Format.Decompress(compressBytes);
-				depthList.AddRange(decompressDepthList);
-			
-			}
-
-			return depthList;
-			*/
 		}
 	}
 }

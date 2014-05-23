@@ -53,7 +53,7 @@ namespace SportsTimeMachinePlayerTest.Reader{
 		/// </summary>
 		[Test]
 		public void ReadCompressFormatTest(){
-			Assert.AreEqual ("depth 2d 10b/6b", reader.ReadCompressFormat().GetFormatName());
+			Assert.AreEqual ("depth 2d 10b/6b", reader.ReadCompressFormat().GetName());
 		}
 
 		/// <summary>

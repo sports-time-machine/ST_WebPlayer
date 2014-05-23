@@ -10,16 +10,18 @@ namespace SportsTimeMachinePlayer.CompressFormat
 	/// </summary>
 	public interface ICompressFormat
 	{
+	
 		/// <summary>
 		/// フォーマットの名称を取得する.
 		/// </summary>
-		/// <returns>The format name.</returns>
-		String GetFormatName();
-
+		/// <returns>フォーマット名を表す文字列.</returns>
+		String GetName();
+	
 		/// <summary>
 		/// 圧縮されたフレーム情報を解凍する.
 		/// </summary>
-		/// <param name="bytes">圧縮されたフレーム情報.</param>
+		/// <param name="bytes">フレーム情報バイト列.</param>
+		/// <returns>ユニット深度情報.</returns>
 		UnitDepth Decompress(byte[] bytes);
 
 	}

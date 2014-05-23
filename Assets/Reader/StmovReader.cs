@@ -9,7 +9,7 @@ using SportsTimeMachinePlayer.CompressFormat;
 namespace SportsTimeMachinePlayer.Reader
 {
 	/// <summary>
-	/// stmovデータからデータを読み取るクラス
+	/// stmovデータからデータを読み取るクラス.
 	/// </summary>
 	public class StmovReader
 	{

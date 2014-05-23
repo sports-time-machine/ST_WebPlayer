@@ -75,7 +75,6 @@ namespace SportsTimeMachinePlayer.VoxcelTransformer
 
 			for (int i = 0; i < depthList.Count; ++i){
 				Depth depth = depthList[i];
-
 							
 				Vector3 vec = new Vector3(
 					(((RESOLUTION_WIDTH/2)- depth.X)/(float)RESOLUTION_WIDTH),
@@ -87,31 +86,6 @@ namespace SportsTimeMachinePlayer.VoxcelTransformer
 				Vector4 point = camMatrix * vec4;
 				voxcels.Add(new Vector3(point.x, point.y, point.z));
 			}
-
-			/*
-			for(int y=0; y<RESOLUTION_HEIGHT; ++y){
-				for (int x=0; x<RESOLUTION_WIDTH; ++x){
-					
-					int z = depthList[index];
-					index++;
-					
-					// デプス情報が無い場合はやり直し
-					if (z == 0) continue;
-					// 遠すぎる場合もやり直し
-					if (z > 8.0f * 1000.0f) continue;
-					
-					Vector3 vec = new Vector3(
-						(((RESOLUTION_WIDTH/2)-x)/(float)RESOLUTION_WIDTH),
-						(((RESOLUTION_HEIGHT/2)-y)/(float)RESOLUTION_HEIGHT),
-						z/1000.0f
-					);
-					
-					Vector4 vec4 = new Vector4(vec.x * vec.z,vec.y * vec.z, vec.z,1.0f);
-					Vector4 point = camMatrix * vec4;
-					voxcels.Add(new Vector3(point.x, point.y, point.z));
-				}
-			}*/
-
 			return voxcels;
 		}
 	}

@@ -6,7 +6,6 @@ using System;
 using SportsTimeMachinePlayer.Reader;
 using SportsTimeMachinePlayer.Model;
 using SportsTimeMachinePlayer.VoxcelTransformer;
-using SportsTimeMachinePlayer.VoxcelFilter;
 
 namespace SportsTimeMachinePlayer.Unit
 {
@@ -51,9 +50,11 @@ namespace SportsTimeMachinePlayer.Unit
 			TotalMilliSecond = reader.ReadTotalMilliSeconds();
 		}
 
+
 		/// <summary>
 		/// データを再生する.
 		/// </summary>
+		/// <param name="frameCount">再生するフレーム番号.</param>
 		public void Play(int frameCount) {
 			if (frameCount > totalFrames - 1){
 				IsEnd = true;
@@ -69,7 +70,11 @@ namespace SportsTimeMachinePlayer.Unit
 			particleSystem.SetParticles(cloud, cloud.Length);
 		}
 
-		public void SetPoints(List<Vector3> positions){
+		/// <summary>
+		/// 3次元情報をパーティクルにセットする.
+		/// </summary>
+		/// <param name="positions">Positions.</param>
+		private void SetPoints(List<Vector3> positions){
 			cloud = new ParticleSystem.Particle[positions.Count];
 			for (int i = 0; i < positions.Count; ++i){
 				cloud[i].position = positions[i];

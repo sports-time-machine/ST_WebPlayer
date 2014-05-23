@@ -10,7 +10,7 @@ namespace SportsTimeMachinePlayer.Gui
 		public Rect position;
 		public GUIStyle style;
 		private string text;
-		private UnitsController controller;
+		private LoadManager manager;
 		private int loadProgress;
 		private int deCompressProgress;
 		private bool isLoadCompleted;
@@ -24,12 +24,11 @@ namespace SportsTimeMachinePlayer.Gui
 			isLoadCompleted = false;
 			isDeCompressCompleted = false;
 			text="";
-			controller = (UnitsController)GameObject.Find("UnitsController").
-				GetComponent("UnitsController");
-			controller.LoadCompleted += OnLoadCompleted;
-			controller.DeCompressCompleted += OnDeCompressCompleted;
-			controller.LoadProgressing += OnLoadProgressing;
-			controller.DeCompressProgressing += OnDeCompressProgressing;
+			manager = (LoadManager)GameObject.Find("UnitsController").GetComponent("LoadManager");
+			manager.DownLoadCompleted += OnDownLoadCompleted;
+			manager.LoadCompleted += OnLoadCompleted;
+			manager.DownLoadProgressing += OnDownLoadProgressing;
+			manager.LoadProgressing += OnLoadProgressing;
 		}
 		
 		// Update is called once per frame
@@ -63,19 +62,19 @@ namespace SportsTimeMachinePlayer.Gui
 			}
 		}
 		
-		void OnLoadCompleted(object sender, EventArgs e){
+		void OnDownLoadCompleted(object sender, EventArgs e){
 			isLoadCompleted = true;
 		}
 		
-		void OnDeCompressCompleted(object sender, EventArgs e){
+		void OnLoadCompleted(UnitsManager manager){
 			isDeCompressCompleted = true;
 		}
 		
-		void OnLoadProgressing(int progress){
+		void OnDownLoadProgressing(int progress){
 			loadProgress = progress;
 		}
 
-		void OnDeCompressProgressing(int progress){
+		void OnLoadProgressing(int progress){
 			deCompressProgress = progress;
 		}
 	}

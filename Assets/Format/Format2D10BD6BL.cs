@@ -5,23 +5,24 @@ using System.Collections.Generic;
 using SportsTimeMachinePlayer.Reader;
 using SportsTimeMachinePlayer.Model;
 
-namespace SportsTimeMachinePlayer.CompressFormat
+namespace SportsTimeMachinePlayer.Format
 {
 	/// <summary>
 	/// フォーマット depth 2d 10b/6b でランレングス圧縮されたデータを表すクラス.
 	/// 各ピクセルは2バイトで表現され,ランレングス長6bit,深度値10bitで表される.
+	/// また,解凍処理を素早く行うため,深度情報のクリッピングはこのクラスで行う.
 	/// </summary>
-	public class Format2D10BD6BL : ICompressFormat
+	public class Format2D10BD6BL : CompressFormat
 	{
 		/// <summary>
-		/// スクリーン幅.
+		/// ニアクリップ.
 		/// </summary>
-		private const int WIDTH = 640;
+		private const int NEAR_CLIP = 0;
 
 		/// <summary>
-		/// スクリーン高さ.
+		/// ファークリップ.
 		/// </summary>
-		private const int HEIGHT = 480;
+		private const int FAR_CLIP = 8000;
 
 		/// <summary>
 		/// 圧縮されたデータのバイト数.
@@ -39,7 +40,7 @@ namespace SportsTimeMachinePlayer.CompressFormat
 		/// フォーマットの名称を取得する.
 		/// </summary>
 		/// <returns>The format name.</returns>
-		public String GetName(){
+		public override String GetName(){
 			return "depth 2d 10b/6b";
 		}
 
@@ -56,14 +57,14 @@ namespace SportsTimeMachinePlayer.CompressFormat
 		/// で表すことができる.
 		/// </remarks>
 		/// <param name="bytes">圧縮されたフレーム情報.</param>
-		public UnitDepth Decompress(byte[] bytes)
+		public override DepthUnit Decompress(byte[] bytes)
 		{
-			UnitDepth unitDepth = new UnitDepth(WIDTH * HEIGHT);
-			List<Depth> depthList = unitDepth.DepthList1;
-
+			DepthUnit unit = new DepthUnit(WIDTH, HEIGHT);
+			DepthScreen screen = unit.LeftScreen;
+			
 			int size = bytes.Length;
 			int count = 0;
-
+			
 			for(int i=0; i < size; i+=BYTE_SIZE)
 			{
 				byte[] compressBytes = new byte[BYTE_SIZE];
@@ -76,48 +77,38 @@ namespace SportsTimeMachinePlayer.CompressFormat
 				
 				int runLength = (second >> 2) + 1;
 				int depth = ((first) | ((second&0x03) << 8)) * 2502 >> 8;
-
-
-				if (depth == 0 || depth > 8.0f * 1000.0f){
-					// 深度が0もしくは8000よりも大きかったら深度情報に追加しない.
+				
+				
+				if (depth <= NEAR_CLIP || depth >= FAR_CLIP){
+					// 深度がクリッピング深度に入っていれば深度情報に追加しない.
 					// ラン分読み飛ばす.
 					count+=runLength;
 				}else{
 					for (int j = 0; j < runLength; ++j)
 					{
 						// 深度情報を追加.
-						depthList.Add(new Depth(GetX(count),GetY (count),depth));
+						screen.DepthList.Add(new DepthPosition(GetPosition(count),depth));
 						count++;
 					}
 				}
-
-				// 1つ目のスクリーンの走査終了.2つ目のスクリーンの走査を始める.
+				
+				// 左のスクリーンの走査終了.右のスクリーンの走査を始める.
 				if (count == WIDTH * HEIGHT){
-					depthList = unitDepth.DepthList2;
+					screen = unit.RightScreen;
 					count=0;
 				}
 			}
-
-			return unitDepth;
+			
+			return unit;
 		}
 
-		/// <summary>
-		/// 走査位置からX座標を取得する.
-		/// </summary>
-		/// <returns>X座標</returns>
-		/// <param name="count">走査位置</param>
-		private int GetX(int count){
-			return count % WIDTH;
+		private Vector2 GetPosition(int count){
+			Vector2 vec = new Vector2();
+			vec.x = count % WIDTH;
+			vec.y = (int)Math.Floor(count/(double)WIDTH);
+			return vec;
 		}
 
-		/// <summary>
-		/// 走査位置からY座標を取得する.
-		/// </summary>
-		/// <returns>Y座標</returns>
-		/// <param name="count">走査位置</param>
-		private int GetY(int count){
-			return (int)Math.Floor(count/(double)WIDTH);
-		}
 	}
 
 }

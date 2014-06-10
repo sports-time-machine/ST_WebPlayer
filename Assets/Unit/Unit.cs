@@ -5,7 +5,7 @@ using System.IO;
 using System;
 using SportsTimeMachinePlayer.Reader;
 using SportsTimeMachinePlayer.Model;
-using SportsTimeMachinePlayer.VoxcelTransformer;
+using SportsTimeMachinePlayer.Transformer;
 
 namespace SportsTimeMachinePlayer.Unit
 {
@@ -19,7 +19,6 @@ namespace SportsTimeMachinePlayer.Unit
 		
 		private List<Vector3> dots;
 		private List<Frame> frames;
-		private IVoxcelTransformer transformer;
 		public int MaxFrameCount{get;private set;}
 		public int FrameCount{get;private set;}
 		public int TotalMilliSecond{get;private set;}
@@ -39,15 +38,12 @@ namespace SportsTimeMachinePlayer.Unit
 		/// </summary>
 		/// <param name="stream">Stream.</param>
 		public void Load(Stream stream) {
-			StmovReader reader = new StmovReader(stream);
-			frames = reader.ReadFrames ();
-			transformer = new VoxcelTransformer.VoxcelTransformer (
-				reader.ReadCamera1Info (),
-				reader.ReadCamera2Info ()
-			);
-			totalFrames = reader.ReadTotalFrames();
-			MaxFrameCount = reader.ReadTotalFrames();
-			TotalMilliSecond = reader.ReadTotalMilliSeconds();
+			using (StmovReader reader = new StmovReader(stream)){
+				frames = reader.ReadFrames ();
+				totalFrames = reader.ReadTotalFrames();
+				MaxFrameCount = reader.ReadTotalFrames();
+				TotalMilliSecond = reader.ReadTotalMilliSeconds();
+			}
 		}
 
 
@@ -60,7 +56,7 @@ namespace SportsTimeMachinePlayer.Unit
 				IsEnd = true;
 				return;
 			}
-			dots = transformer.GetVocelList (frames[frameCount]);
+			dots = frames[frameCount].GetPointCloud();
 			if (dots.Count != 0) SetPoints(dots);
 			IsEnd = false;
 		}

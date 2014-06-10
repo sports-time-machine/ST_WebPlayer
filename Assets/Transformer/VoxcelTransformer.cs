@@ -2,15 +2,15 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using SportsTimeMachinePlayer.Model;
-using SportsTimeMachinePlayer.CompressFormat;
+using SportsTimeMachinePlayer.Format;
 
-namespace SportsTimeMachinePlayer.VoxcelTransformer
+namespace SportsTimeMachinePlayer.Transformer
 {
 	/// <summary>
 	/// 深度情報を三次元ボクセル情報に変換するクラス.
 	/// カメラ2台で1つのスクリーンを投影させる標準的なスポーツタイムマシンの記録形式の変換を行う.
 	/// </summary>
-	public class VoxcelTransformer : IVoxcelTransformer
+	public class VoxcelTransformer
 	{
 		/// <summary>
 		/// 横方向解像度.
@@ -48,17 +48,12 @@ namespace SportsTimeMachinePlayer.VoxcelTransformer
 		/// </summary>
 		/// <returns>ボクセルのリスト</returns>
 		/// <param name="frame">フレーム.</param>
-		public List<Vector3> GetVocelList(Frame frame)
+		public List<Vector3> GetVocelList(DepthUnit unit)
 		{
-			UnitDepth unitDepth = frame.GetDepthList();
-
 			List<Vector3> voxcels = new List<Vector3>();
-
-			List<Depth> screen1DepthList = unitDepth.DepthList1;
-			List<Depth> screen2DepthList = unitDepth.DepthList2;
-
-			voxcels.AddRange(GetScreenVoxcels(camera1Info, screen1DepthList));
-			voxcels.AddRange(GetScreenVoxcels(camera2Info, screen2DepthList));
+		
+			voxcels.AddRange(GetScreenVoxcels(camera1Info, unit.LeftScreen));
+			voxcels.AddRange(GetScreenVoxcels(camera2Info, unit.RightScreen));
 			return voxcels;
 		}
 
@@ -68,18 +63,19 @@ namespace SportsTimeMachinePlayer.VoxcelTransformer
 		/// <returns>ボクセルのリスト</returns>
 		/// <param name="camera">カメラ情報.</param>
 		/// <param name="depthList">深度情報のリスト.</param>
-		private List<Vector3> GetScreenVoxcels(CameraInfo camera, List<Depth> depthList){
+		private List<Vector3> GetScreenVoxcels(CameraInfo camera, DepthScreen screen){
 
-			List<Vector3> voxcels = new List<Vector3>(depthList.Count);
+			int screenDepthCount = screen.DepthList.Count;
+			List<Vector3> voxcels = new List<Vector3>(screenDepthCount);
 			Matrix4x4 camMatrix = camera.GetMatrix();
 
-			for (int i = 0; i < depthList.Count; ++i){
-				Depth depth = depthList[i];
-							
+			for (int i = 0; i < screenDepthCount; ++i){
+				DepthPosition depth = screen.DepthList[i];
+
 				Vector3 vec = new Vector3(
-					(((RESOLUTION_WIDTH/2)- depth.X)/(float)RESOLUTION_WIDTH),
-					(((RESOLUTION_HEIGHT/2)- depth.Y)/(float)RESOLUTION_HEIGHT),
-					depth.Value/1000.0f
+					(((RESOLUTION_WIDTH/2)- depth.Position.x)/(float)RESOLUTION_WIDTH),
+					(((RESOLUTION_HEIGHT/2)- depth.Position.y)/(float)RESOLUTION_HEIGHT),
+					depth.Depth/1000.0f
 				);
 				
 				Vector4 vec4 = new Vector4(vec.x * vec.z,vec.y * vec.z, vec.z,1.0f);

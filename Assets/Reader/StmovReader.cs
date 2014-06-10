@@ -4,20 +4,37 @@ using System.IO;
 using System.Collections.Generic;
 using SportsTimeMachinePlayer.Model;
 using System.Text;
-using SportsTimeMachinePlayer.CompressFormat;
+using SportsTimeMachinePlayer.Format;
+using SportsTimeMachinePlayer.Transformer;
 
 namespace SportsTimeMachinePlayer.Reader
 {
 	/// <summary>
 	/// stmovデータからデータを読み取るクラス.
 	/// </summary>
-	public class StmovReader
+	public class StmovReader : IDisposable
 	{
+		private bool disposed;
+
 		private Stream stream;
 
+		/// <summary>
+		/// ストリームからReaderを構築する.
+		/// </summary>
+		/// <param name="stream">Stream.</param>
 		public StmovReader (Stream stream)
 		{
+			disposed = false;
 			this.stream = stream;
+		}
+
+		/// <summary>
+		/// ファイル名からReaderを構築する.
+		/// </summary>
+		/// <param name="stream">Stream.</param>
+		public StmovReader (string filename){
+			disposed = false;
+			stream = new FileStream(filename, FileMode.Open);
 		}
 
 		/// <summary>
@@ -25,6 +42,8 @@ namespace SportsTimeMachinePlayer.Reader
 		/// </summary>
 		/// <returns>The signature.</returns>
 		public String ReadSignature(){
+			if (disposed) throw new ObjectDisposedException(GetType().FullName);
+
 			stream.Seek(0,SeekOrigin.Begin);
 			byte[] bytes = new byte[6];
 			stream.Read (bytes, 0, 6);
@@ -37,6 +56,8 @@ namespace SportsTimeMachinePlayer.Reader
 		/// </summary>
 		/// <returns>The version.</returns>
 		public String ReadVersion(){
+			if (disposed) throw new ObjectDisposedException(GetType().FullName);
+
 			stream.Seek (6, SeekOrigin.Begin);
 			int majorVersion = stream.ReadByte();
 			int minorVersion = stream.ReadByte();
@@ -49,6 +70,8 @@ namespace SportsTimeMachinePlayer.Reader
 		/// </summary>
 		/// <returns>The total frames.</returns>
 		public int ReadTotalFrames(){
+			if (disposed) throw new ObjectDisposedException(GetType().FullName);
+
 			stream.Seek (8, SeekOrigin.Begin);
 			byte[] bytes = new byte[sizeof(int)];
 			stream.Read (bytes, 0, sizeof(int));
@@ -61,6 +84,8 @@ namespace SportsTimeMachinePlayer.Reader
 		/// </summary>
 		/// <returns>The total milli seconds.</returns>
 		public int ReadTotalMilliSeconds(){
+			if (disposed) throw new ObjectDisposedException(GetType().FullName);
+
 			stream.Seek (12, SeekOrigin.Begin);
 			byte[] bytes = new byte[sizeof(int)];
 			stream.Read (bytes, 0, sizeof(int));
@@ -72,12 +97,14 @@ namespace SportsTimeMachinePlayer.Reader
 		/// 深度情報圧縮フォーマットを読み込む.
 		/// </summary>
 		/// <returns>The compress format.</returns>
-		public ICompressFormat ReadCompressFormat(){
+		public CompressFormat ReadCompressFormat(){
+			if (disposed) throw new ObjectDisposedException(GetType().FullName);
+
 			stream.Seek (16, SeekOrigin.Begin);
 			byte[] bytes = new byte[16];
 			stream.Read (bytes, 0, 16);
 			string formatString = Encoding.ASCII.GetString(bytes);
-			ICompressFormat format = CompressFormat.FormatFactory.GetFormat(formatString);
+			CompressFormat format = FormatFactory.GetFormat(formatString);
 			return format;
 		}
 
@@ -86,41 +113,9 @@ namespace SportsTimeMachinePlayer.Reader
 		/// </summary>
 		/// <returns>The camera1 info.</returns>
 		public CameraInfo ReadCamera1Info(){
+			if (disposed) throw new ObjectDisposedException(GetType().FullName);
 			stream.Seek (32, SeekOrigin.Begin);
-			byte[] xBytes = new byte[sizeof(float)];
-			byte[] yBytes = new byte[sizeof(float)];
-			byte[] zBytes = new byte[sizeof(float)];
-
-			// カメラ情報
-			stream.Read (xBytes, 0, sizeof(float));
-			stream.Read (yBytes, 0, sizeof(float));
-			stream.Read (zBytes, 0, sizeof(float));
-			Vector3 pos = new Vector3(
-				BitConverter.ToSingle(xBytes, 0),
-				BitConverter.ToSingle(yBytes, 0),
-				BitConverter.ToSingle(zBytes, 0)
-			);
-			
-			stream.Read (xBytes, 0, sizeof(float));
-			stream.Read (yBytes, 0, sizeof(float));
-			stream.Read (zBytes, 0, sizeof(float));
-			Vector3 rot = new Vector3(
-				BitConverter.ToSingle(xBytes, 0),
-				BitConverter.ToSingle(yBytes, 0),
-				BitConverter.ToSingle(zBytes, 0)
-			);
-			
-			stream.Read (xBytes, 0, sizeof(float));
-			stream.Read (yBytes, 0, sizeof(float));
-			stream.Read (zBytes, 0, sizeof(float));
-			Vector3 scale = new Vector3(
-				BitConverter.ToSingle(xBytes, 0),
-				BitConverter.ToSingle(yBytes, 0),
-				BitConverter.ToSingle(zBytes, 0)
-			);
-
-			CameraInfo info = new CameraInfo (pos, rot, scale);
-			return info;
+			return ReadCameraInfo();
 		}
 
 		/// <summary>
@@ -128,7 +123,12 @@ namespace SportsTimeMachinePlayer.Reader
 		/// </summary>
 		/// <returns>The camera2 info.</returns>
 		public CameraInfo ReadCamera2Info(){
+			if (disposed) throw new ObjectDisposedException(GetType().FullName);
 			stream.Seek (68, SeekOrigin.Begin);
+			return ReadCameraInfo();
+		}
+
+		private CameraInfo ReadCameraInfo(){
 			byte[] xBytes = new byte[sizeof(float)];
 			byte[] yBytes = new byte[sizeof(float)];
 			byte[] zBytes = new byte[sizeof(float)];
@@ -165,15 +165,21 @@ namespace SportsTimeMachinePlayer.Reader
 			return info;
 		}
 
+
 		/// <summary>
 		/// Reads the frames.
 		/// </summary>
 		/// <returns>The frames.</returns>
 		public List<Frame> ReadFrames(){
+			if (disposed) throw new ObjectDisposedException(GetType().FullName);
+
 			List<Frame> frames = new List<Frame>();
 
 			int totalFrames = ReadTotalFrames();
-			ICompressFormat format = ReadCompressFormat ();
+			CompressFormat format = ReadCompressFormat ();
+
+			VoxcelTransformer transformer = new VoxcelTransformer( ReadCamera1Info(), ReadCamera2Info());
+
 			stream.Seek (108, SeekOrigin.Begin);
 
 			for (int i=0; i < totalFrames ; i++) 
@@ -192,10 +198,18 @@ namespace SportsTimeMachinePlayer.Reader
 				byte[] voxcelDataBuffer = new byte[voxcelSize];
 				stream.Read(voxcelDataBuffer, 0, voxcelSize);
 
-				frames.Add(new Frame(voxcelDataBuffer, format));
+				frames.Add(new Frame(voxcelDataBuffer, format, transformer));
 			}
 
 			return frames;
+		}
+
+		public void Dispose(){
+			if (!disposed){
+				stream.Dispose();
+				GC.SuppressFinalize(this);
+				disposed = true;
+			}
 		}
 
 	}

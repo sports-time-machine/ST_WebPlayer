@@ -1,6 +1,6 @@
 using System;
 
-namespace SportsTimeMachinePlayer.CompressFormat
+namespace SportsTimeMachinePlayer.Format
 {
 
 	/// <summary>
@@ -14,9 +14,9 @@ namespace SportsTimeMachinePlayer.CompressFormat
 		/// </summary>
 		/// <returns>圧縮フォーマット.</returns>
 		/// <param name="formatString">フォーマットを表す文字列.</param>
-		static public ICompressFormat GetFormat (string formatString)
+		static public CompressFormat GetFormat (string formatString)
 		{
-			ICompressFormat format = null;
+			CompressFormat format = null;
 			switch (formatString){
 			case "depth 2d 10b/6b " :
 				format = new Format2D10BD6BL();

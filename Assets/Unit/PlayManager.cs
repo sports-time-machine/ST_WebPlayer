@@ -6,7 +6,6 @@ namespace SportsTimeMachinePlayer.Unit
 {
 	public class PlayManager : MonoBehaviour 
 	{
-
 		public PlayOption Option{get; private set;}
 		public PlayStatus Status{get; private set;}
 		private UnitsManager units;

@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using SportsTimeMachinePlayer.CompressFormat;
+using SportsTimeMachinePlayer.Format;
+using SportsTimeMachinePlayer.Transformer;
 
 namespace SportsTimeMachinePlayer.Model{
 
@@ -28,28 +29,29 @@ namespace SportsTimeMachinePlayer.Model{
 		/// 圧縮情報フォーマットを取得する.
 		/// </summary>
 		/// <value>圧縮情報フォーマット.</value>
-		public ICompressFormat Format{ get; private set; }
+		private CompressFormat format;
+
+		private VoxcelTransformer transformer;
 
 		/// <summary>
 		/// コンストラクタ.
 		/// </summary>
 		/// <param name="bytes">フレーム情報バイト列.</param>
 		/// <param name="format">圧縮フォーマット.</param>
-		public Frame (byte[] bytes, ICompressFormat format)
+		public Frame (byte[] bytes, CompressFormat format, VoxcelTransformer transformer)
 		{
 			this.bytes = bytes;
 			Size = bytes.Length;
-			Format = format;
+			this.format = format;
+			this.transformer = transformer;
 		}
 
 		/// <summary>
-		/// 圧縮されたフレーム情報を解凍し,深度情報のリストを取得する.
+		/// 圧縮されたフレーム情報を解凍し,点群リストを作成する.
 		/// </summary>
-		/// <returns>深度情報</returns>
-		/// <param name="prevBytes">前フレームの深度情報リスト.</param>
-		public UnitDepth GetDepthList()
-		{
-			return Format.Decompress(bytes);
+		/// <returns>The point cloud.</returns>
+		public List<Vector3> GetPointCloud(){
+			return transformer.GetVocelList(format.Decompress(bytes));
 		}
 	}
 }

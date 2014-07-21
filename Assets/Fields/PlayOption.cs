@@ -27,7 +27,7 @@ namespace SportsTimeMachinePlayer.Fields{
 		public PlayOption()
 		{
 			IsFixCamera = true;
-			IsDrawSkip = true;
+			IsDrawSkip = false;
 			ShowsFps = false;
 		}
 	}

@@ -16,7 +16,6 @@ namespace SportsTimeMachinePlayer.Fields
 		// ボクセルのマテリアル
 		public Material voxcelMaterial;
 
-		private UnitPointCloud pointCloud;
 		private List<Vector3> dots;
 		public bool IsEnd{get;private set;}
 
@@ -37,7 +36,6 @@ namespace SportsTimeMachinePlayer.Fields
 		}
 
 		public void SetUnitPointCloud(UnitPointCloud pointCloud){
-			this.pointCloud = pointCloud;
 			dots = pointCloud.VectorList;
 			if (dots != null && dots.Count != 0) SetPoints(dots);
 		}
@@ -61,7 +59,6 @@ namespace SportsTimeMachinePlayer.Fields
 				cloud[i].velocity = Vector3.zero;
 			}
 			particles.SetParticles(cloud, cloud.Length);
-		
 		}
 
 	}

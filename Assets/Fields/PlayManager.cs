@@ -27,8 +27,8 @@ namespace SportsTimeMachinePlayer.Fields
 		// Use this for initialization
 		void Start () {
 			LoadManager loadManager = (LoadManager)GetComponent("LoadManager");
-			loadManager.Load();
 			loadManager.LoadCompleted += OnLoadCompleted;
+			loadManager.Load();
 
 			Status.FrameCountChanged += OnFrameCountChanged;
 

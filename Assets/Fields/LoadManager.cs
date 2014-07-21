@@ -57,12 +57,11 @@ namespace SportsTimeMachinePlayer.Fields
 			else
 			{
 				trackStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+				TrackReader reader = new TrackReader(trackStream);
+				reader.ReadProgressing += OnReadProgressing;
+				reader.ReadCompleted += OnReadCompleted;
+				StartCoroutine(reader.ReadAsync());
 			}
-
-			TrackReader reader = new TrackReader(trackStream);
-			reader.ReadProgressing += OnReadProgressing;
-			reader.ReadCompleted += OnReadCompleted;
-			StartCoroutine(reader.ReadAsync());
 		}
 
 		/// <summary>
@@ -78,13 +77,19 @@ namespace SportsTimeMachinePlayer.Fields
 				DownLoadProgressing((int)(www.progress * 100));
 				yield return null;
 			}
-			
+
 			if (string.IsNullOrEmpty(www.error)){
-				
+
 			} 
+
 			DownLoadCompleted(this, EventArgs.Empty);
-			
+
 			trackStream = new MemoryStream (www.bytes, false);
+
+			TrackReader reader = new TrackReader(trackStream);
+			reader.ReadProgressing += OnReadProgressing;
+			reader.ReadCompleted += OnReadCompleted;
+			StartCoroutine(reader.ReadAsync());
 		}
 
 		/// <summary>

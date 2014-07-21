@@ -23,8 +23,8 @@ namespace SportsTimeMachinePlayer.Gui
 		private bool prevClicked;
 		private bool nextClicked;
 
-		private GameObject fixCamera;
-		private GameObject moveCamera;
+		private Camera fixCamera;
+		private Camera moveCamera;
 
 		public ProgressBarGui (PlayStatus status, PlayOption option)
 		{
@@ -38,8 +38,8 @@ namespace SportsTimeMachinePlayer.Gui
 			MaxPlayTime = 0;
 			pushCount = 0;
 
-			fixCamera = (GameObject)GameObject.Find("Fix Camera");
-			moveCamera = (GameObject)GameObject.Find("First Person Controller");
+			fixCamera = GameObject.Find("Fix Camera").GetComponent<Camera>();
+			moveCamera = GameObject.Find("Move Camera").GetComponent<Camera>();
 
 			SwitchCamera();
 		}
@@ -128,11 +128,11 @@ namespace SportsTimeMachinePlayer.Gui
 		/// </summary>
 		private void SwitchCamera(){
 			if(option.IsFixCamera){
-				fixCamera.SetActive(true);
-				moveCamera.SetActive(false);
+				fixCamera.enabled = true;
+				moveCamera.enabled = false;
 			}else{
-				fixCamera.SetActive(false);
-				moveCamera.SetActive(true);
+				fixCamera.enabled = false;
+				moveCamera.enabled = true;
 			}
 		}
 

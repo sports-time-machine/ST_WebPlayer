@@ -17,11 +17,14 @@ namespace SportsTimeMachinePlayer.Fields
 		public PlayStatus Status{get; private set;}
 		private Track track;
 
+		private float time;
+
 		void Awake () {
 			Application.targetFrameRate = 30; 
 			Option = new PlayOption();
 			Status = new PlayStatus();
 			isLoaded = false;
+			time = 0.0f;
 		}
 
 		// Use this for initialization
@@ -45,12 +48,16 @@ namespace SportsTimeMachinePlayer.Fields
 		void Update (){
 			if (isLoaded){
 				if (Status.IsPlaying == true ){
-					//TrackPointCloud trackPointCloud = track.GetTrackPointCloud(Status.FrameCount);
-					//if (trackPointCloud == null )Status.IsEnd = true;
-					//else Status.IsEnd = false;
-					//if (Status.IsEnd == true) Status.IsPlaying = false;
-					//if (Status.IsPlaying == true) 
-					Status.FrameCount += 1;
+					time += Time.deltaTime;
+					int count = 0;
+					while(time > 0.03333f){
+						count++;
+						time -= 0.03333f;
+					}
+					Status.FrameCount += count;
+				}else
+				{
+					time = 0.0f;
 				}
 			}
 		}

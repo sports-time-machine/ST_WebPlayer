@@ -16,6 +16,8 @@ namespace SportsTimeMachinePlayer.Fields
 		// ボクセルのマテリアル
 		public Material voxcelMaterial;
 
+		public float voxcelSize = 0.01f;
+
 		private List<Vector3> dots;
 		public bool IsEnd{get;private set;}
 
@@ -25,7 +27,7 @@ namespace SportsTimeMachinePlayer.Fields
 
 		// Use this for initialization
 		void Start () {
-			particles = GetComponent<ParticleSystem>(); //gameObject.GetComponentInChildren<ParticleSystem>();
+			particles = GetComponent<ParticleSystem>();
 		}
 
 		void OnGUI()
@@ -55,7 +57,7 @@ namespace SportsTimeMachinePlayer.Fields
 			for (int i = 0; i < positions.Count; ++i){
 				cloud[i].position = positions[i];
 				cloud[i].color = particles.startColor;
-				cloud[i].size =  particles.startSize;
+				cloud[i].size =  voxcelSize;
 				cloud[i].velocity = Vector3.zero;
 			}
 			particles.SetParticles(cloud, cloud.Length);

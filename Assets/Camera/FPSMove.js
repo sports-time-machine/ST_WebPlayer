@@ -1,31 +1,35 @@
-private var motor : CharacterMotor;
+private var controller : CharacterController;
+public var speed : float;
+
+public var limitBack : float;
 
 // Use this for initialization
 function Awake () {
-	motor = GetComponent(CharacterMotor);
+	controller = GetComponent(CharacterController);
 }
 
 // Update is called once per frame
 function Update () {
+
+
+	if (camera.enabled == false) return;
 	// Get the input vector from keyboard or analog stick
 	
-	var v = 0;
-	var h = 0;
-	
+	var vec = Vector3.zero;
 	if (Input.GetKey(KeyCode.A)){
-		h = -1;
+		vec -= Vector3.right;
 	}
 	if (Input.GetKey(KeyCode.D)){
-		h = 1;
+		vec += Vector3.right;
 	}
 	if (Input.GetKey(KeyCode.S)){
-		v = -1;
+		vec -= Vector3.forward;
 	}
 	if (Input.GetKey(KeyCode.W)){
-		v = 1;
+		vec += Vector3.forward;
 	}
-	
-	var directionVector = new Vector3(h, 0, v);
+
+	var directionVector = vec;
 	
 	if (directionVector != Vector3.zero) {
 		// Get the length of the directon vector and then normalize it
@@ -44,11 +48,16 @@ function Update () {
 		directionVector = directionVector * directionLength;
 	}
 	
+	var ret = transform.rotation * directionVector;
+	ret *= speed;
+	
 	// Apply the direction to the CharacterMotor
-	motor.inputMoveDirection = transform.rotation * directionVector;
-	motor.inputJump = Input.GetButton("Jump");
+	controller.Move(ret);
+	
+	
 }
 
 // Require a character controller to be attached to the same game object
-@script RequireComponent (CharacterMotor)
+@script RequireComponent (CharacterController)
+@script RequireComponent (Camera)
 @script AddComponentMenu ("Character/FPS Input Controller")

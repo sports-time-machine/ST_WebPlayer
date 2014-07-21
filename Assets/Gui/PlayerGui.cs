@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using SportsTimeMachinePlayer.Unit;
+using SportsTimeMachinePlayer.Fields;
 using SportsTimeMachinePlayer.Common;
 using System;
 
@@ -8,65 +8,63 @@ namespace SportsTimeMachinePlayer.Gui
 {
 	public class PlayerGui : MonoBehaviour
 	{
-		int x,y;
-		private UnitsManager manager;
 		private double time;
 		private Fps fps;
 		private PlayStatus status;
+		private PlayOption option;
+		private ProgressBarGui progressBarGui;
 
 		void Awake(){
-			status = ((PlayManager)GameObject.Find("UnitsController").
-			          GetComponent("PlayManager")).Status;
 		}
 
 		// Use this for initialization
 		void Start()
 		{
-			x = 30;
-			y = 420;
+			PlayManager manager = ((PlayManager)GameObject.Find("UnitsController").
+			                       GetComponent("PlayManager"));
+			
+			option = manager.Option;
+			
+			manager.Playabled += OnPlayabled;
 			fps = new Fps();
-
 		}
 		
 		// Update is called once per frame
 		void Update()
 		{
 			fps.Update();
-			time = Math.Round(status.PlayTime, 3, MidpointRounding.AwayFromZero);
+			if (status != null){
+				status.Fps = fps.Value;
+				progressBarGui.FrameCount = status.FrameCount + 1;
+				if ( progressBarGui.FrameCount > status.MaxFrameCount) progressBarGui.FrameCount = status.MaxFrameCount;
+				progressBarGui.PlayTime = Math.Round((progressBarGui.FrameCount * 33.33333) / 1000.0, 3, MidpointRounding.AwayFromZero);
+				progressBarGui.Update();
+
+				// Fキーが押されていれば,FPS表示のトグルを行う.
+				if (Input.GetKeyDown(KeyCode.F)){
+					if (option.ShowsFps) option.ShowsFps = false;
+					else option.ShowsFps = true;
+				}
+			}
 		}
 		
 		void OnGUI()
 		{
-			if (status.IsPlayable){
+			if (status != null){
 				GUI.Box(new Rect(0,425,640,480-425),"");
-				string buttonText = "再生";
-				if (status.IsPlaying == true) buttonText = "停止";
-
-				if (GUI.Button(new Rect(x+20,y+20,40,25),buttonText)){
-					if (status.IsPlaying == false){
-						status.IsPlaying = true;
-						if (status.IsEnd == true){
-							status.FrameCount = 0;
-						}
-					}else{
-						status.IsPlaying = false;
-					}
-				}
-				status.FrameCount = (int)GUI.HorizontalSlider(new Rect(x+68,y+26,350,25),
-				                    status.FrameCount,0.0f,status.MaxFrameCount);
-
-				GUI.Label(new Rect(x+426,y+13,200,25),time.ToString("00.000") + "秒");
-
-				int frameCount = status.FrameCount + 1;
-				if ( frameCount > status.MaxFrameCount) frameCount = status.MaxFrameCount;
-				GUI.Label(new Rect(x+426,y+32,200,25),
-				          "(" + frameCount.ToString("0000")+ "/" +
-				          status.MaxFrameCount.ToString("0000") + ")");
-
-				GUI.Label(new Rect(x+530,y+35,100,50), "FPS：" + fps.Value);
+				progressBarGui.ShowGui();
+			}
+	
+			if (option.ShowsFps){
+				GUI.Label(new Rect(570,10,100,50), "FPS:" + status.Fps);
 			}
 		}
 
-
+		void OnPlayabled(PlayStatus status){
+			this.status = status;
+			progressBarGui = new ProgressBarGui(status, option);
+			progressBarGui.X = 35;
+			progressBarGui.Y = 433;
+		}
 	}
 }

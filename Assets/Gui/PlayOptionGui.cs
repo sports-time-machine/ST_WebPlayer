@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using SportsTimeMachinePlayer.Unit;
+using SportsTimeMachinePlayer.Fields;
 using System;
 
 namespace SportsTimeMachinePlayer.Gui
@@ -9,7 +9,6 @@ namespace SportsTimeMachinePlayer.Gui
 	{
 		private Rect position = new Rect(640-200,0,200,100);
 		public GUIStyle style;
-		private bool isDoubleFrame;
 		private PlayOption option;
 		private PlayStatus status;
 		
@@ -19,20 +18,24 @@ namespace SportsTimeMachinePlayer.Gui
 			PlayManager manager = ((PlayManager)GameObject.Find("UnitsController").
 			          	GetComponent("PlayManager"));
 
+			manager.Playabled += OnPlayabled;
 			option = manager.Option;
-			status = manager.Status;
 		}
 				
 		void OnGUI()
 		{
-			if (status.IsPlayable){
+			if (status != null){
 				GUILayout.Window(1, position, DrawWindow, "さいせいオプション");
 			}
 		}
 
 		private void DrawWindow(int id){
-			option.IsDoubleFrame = 
-				GUILayout.Toggle(option.IsDoubleFrame, "1フレームづつ飛ばす");
+			option.IsDrawSkip = 
+				GUILayout.Toggle(option.IsDrawSkip, "再生を実際の時間に合わせる");
+		}
+
+		void OnPlayabled(PlayStatus status){
+			this.status = status;
 		}
 	}
 }

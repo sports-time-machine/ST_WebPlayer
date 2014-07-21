@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
-using SportsTimeMachinePlayer.Unit;
+using SportsTimeMachinePlayer.Fields;
+using SportsTimeMachineMovie.Data.Tracks;
 using System;
 
 namespace SportsTimeMachinePlayer.Gui
@@ -66,7 +67,7 @@ namespace SportsTimeMachinePlayer.Gui
 			isLoadCompleted = true;
 		}
 		
-		void OnLoadCompleted(UnitsManager manager){
+		void OnLoadCompleted(Track track){
 			isDeCompressCompleted = true;
 		}
 		

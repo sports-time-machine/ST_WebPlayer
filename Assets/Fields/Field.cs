@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System;
-using SportsTimeMachineMovie.IO;
-using SportsTimeMachineMovie.Data.Units;
+using SportsTimeMachine.IO;
+using SportsTimeMachine.Data.Units;
 
 namespace SportsTimeMachinePlayer.Fields
 {
@@ -18,7 +18,7 @@ namespace SportsTimeMachinePlayer.Fields
 
 		public float voxcelSize = 0.01f;
 
-		private List<Vector3> dots;
+		private List<SportsTimeMachine.Data.Commons.Vector3> dots;
 		public bool IsEnd{get;private set;}
 
 		private ParticleSystem particles;
@@ -50,12 +50,12 @@ namespace SportsTimeMachinePlayer.Fields
 		/// 3次元情報をパーティクルにセットする.
 		/// </summary>
 		/// <param name="positions">Positions.</param>
-		private void SetPoints(List<Vector3> positions){
+		private void SetPoints(List<SportsTimeMachine.Data.Commons.Vector3> positions){
 			particles.Emit (positions.Count);
 			cloud = new ParticleSystem.Particle[positions.Count];
 			particles.GetParticles(cloud);
 			for (int i = 0; i < positions.Count; ++i){
-				cloud[i].position = positions[i];
+				cloud[i].position = new Vector3(positions[i].x, positions[i].y, positions[i].z);
 				cloud[i].color = particles.startColor;
 				cloud[i].size =  voxcelSize;
 				cloud[i].velocity = Vector3.zero;

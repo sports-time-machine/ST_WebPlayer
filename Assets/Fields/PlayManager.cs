@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 using SportsTimeMachinePlayer.Common;
-using SportsTimeMachineMovie.Data.Tracks;
+using SportsTimeMachine.Data.Tracks;
 
 namespace SportsTimeMachinePlayer.Fields
 {
@@ -75,16 +75,7 @@ namespace SportsTimeMachinePlayer.Fields
 		}
 
 		void OnFrameCountChanged(){
-
-			if (Option.IsDrawSkip){
-				// 処理落ち時に描画のスキップを行う.
-				if (Time.deltaTime < 0.03333){
-					Show();
-				}
-			}else{
-				// 処理落ち時でも全フレームの描画を行う.
-				Show ();
-			}
+			Show ();
 		}
 
 		void OnLoadCompleted(Track track){

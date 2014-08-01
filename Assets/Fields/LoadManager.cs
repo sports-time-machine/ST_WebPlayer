@@ -5,8 +5,8 @@ using System.IO;
 using System;
 using SportsTimeMachinePlayer.Common;
 using ICSharpCode.SharpZipLib.Zip;
-using SportsTimeMachineMovie.IO;
-using SportsTimeMachineMovie.Data.Tracks;
+using SportsTimeMachine.IO;
+using SportsTimeMachine.Data.Tracks;
 
 namespace SportsTimeMachinePlayer.Fields
 {

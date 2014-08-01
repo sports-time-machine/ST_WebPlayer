@@ -12,9 +12,15 @@ namespace SportsTimeMachinePlayer.Fields
 			get { return frameCount;}
 			set 
 			{
-				if (FrameCount != value){
-					if (value < 0) frameCount = 0;
-					else if(value > MaxFrameCount -1) frameCount = MaxFrameCount - 1;
+				if (frameCount != value){
+					if (value < 0){
+						frameCount = 0;
+						IsPlaying = false;
+					}
+					else if(value > MaxFrameCount -1){
+						frameCount = MaxFrameCount - 1;
+						IsPlaying = false;
+					}
 					else frameCount = value;
 					FrameCountChanged();
 				}
@@ -26,6 +32,7 @@ namespace SportsTimeMachinePlayer.Fields
 		public int Fps{get;set;}
 
 		private int frameCount;
+
 		public PlayStatus ()
 		{
 			IsPlaying = false;

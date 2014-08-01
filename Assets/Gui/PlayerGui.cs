@@ -45,6 +45,21 @@ namespace SportsTimeMachinePlayer.Gui
 					if (option.ShowsFps) option.ShowsFps = false;
 					else option.ShowsFps = true;
 				}
+
+				// Cキーが押されていれば,カメラのトグルを行う.
+				if (Input.GetKeyDown(KeyCode.C)){
+					if (option.IsFixCamera) option.IsFixCamera = false;
+					else option.IsFixCamera = true;
+				}
+
+				// 移動カメラ時にVキーで画角の変更.
+				// 普通・広角・望遠の順でトグルする.
+				if (!option.IsFixCamera && Input.GetKeyDown(KeyCode.V)){
+					if (option.ViewAngle == ViewAngle.Normal) option.ViewAngle = ViewAngle.Wide;
+					else if (option.ViewAngle == ViewAngle.Wide) option.ViewAngle = ViewAngle.Narrow;
+					else option.ViewAngle = ViewAngle.Normal;
+				}
+
 			}
 		}
 		

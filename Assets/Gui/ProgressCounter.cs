@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using SportsTimeMachinePlayer.Fields;
-using SportsTimeMachineMovie.Data.Tracks;
+using SportsTimeMachine.Data.Tracks;
 using System;
 
 namespace SportsTimeMachinePlayer.Gui

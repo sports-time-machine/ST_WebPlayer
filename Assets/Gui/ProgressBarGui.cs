@@ -23,9 +23,6 @@ namespace SportsTimeMachinePlayer.Gui
 		private bool prevClicked;
 		private bool nextClicked;
 
-		private Camera fixCamera;
-		private Camera moveCamera;
-
 		public ProgressBarGui (PlayStatus status, PlayOption option)
 		{
 			this.status = status;
@@ -37,11 +34,6 @@ namespace SportsTimeMachinePlayer.Gui
 			MaxFrameCount = 0;
 			MaxPlayTime = 0;
 			pushCount = 0;
-
-			fixCamera = GameObject.Find("Fix Camera").GetComponent<Camera>();
-			moveCamera = GameObject.Find("Move Camera").GetComponent<Camera>();
-
-			SwitchCamera();
 		}
 
 		public void Update(){
@@ -82,7 +74,6 @@ namespace SportsTimeMachinePlayer.Gui
 			if (GUI.Button(new Rect(X + 465, Y + 10, 100, 25), "カメラ切り替え")){
 				if (option.IsFixCamera) option.IsFixCamera = false;
 				else option.IsFixCamera = true;
-				SwitchCamera();
 			}
 
 			// 水平バー
@@ -122,20 +113,6 @@ namespace SportsTimeMachinePlayer.Gui
 			status.FrameCount++;
 			status.IsPlaying = false;
 		}
-
-		/// <summary>
-		/// カメラ切り替え.
-		/// </summary>
-		private void SwitchCamera(){
-			if(option.IsFixCamera){
-				fixCamera.enabled = true;
-				moveCamera.enabled = false;
-			}else{
-				fixCamera.enabled = false;
-				moveCamera.enabled = true;
-			}
-		}
-
 	}
 }
 

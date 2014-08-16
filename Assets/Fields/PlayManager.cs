@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 using SportsTimeMachinePlayer.Common;
 using SportsTimeMachine.Data.Tracks;
+using SportsTimeMachine.Data.Units;
 
 namespace SportsTimeMachinePlayer.Fields
 {
@@ -63,6 +65,7 @@ namespace SportsTimeMachinePlayer.Fields
 		}
 
 		public void Show(){
+			/*
 			TrackPointCloud trackPointCloud = track.GetTrackPointCloud(Status.FrameCount);
 			if (trackPointCloud != null){
 				fields[0].SetUnitPointCloud(trackPointCloud.GetUnitPointCloud(UnitNumber.ONE));
@@ -71,6 +74,12 @@ namespace SportsTimeMachinePlayer.Fields
 				fields[3].SetUnitPointCloud(trackPointCloud.GetUnitPointCloud(UnitNumber.FOUR));
 				fields[4].SetUnitPointCloud(trackPointCloud.GetUnitPointCloud(UnitNumber.FIVE));
 				fields[5].SetUnitPointCloud(trackPointCloud.GetUnitPointCloud(UnitNumber.SIX));
+			}*/
+
+
+			List<UnitPointCloud> unitsPointCloud = track.GetUnitsPointCloud(Status.FrameCount);
+			for (int i = 0; i < 6; i++) {
+				fields[i].SetUnitPointCloud(unitsPointCloud[i].VectorList);
 			}
 		}
 

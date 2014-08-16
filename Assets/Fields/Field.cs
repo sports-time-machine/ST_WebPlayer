@@ -30,15 +30,9 @@ namespace SportsTimeMachinePlayer.Fields
 			particles = GetComponent<ParticleSystem>();
 		}
 
-		void OnGUI()
-		{
-			if (cloud != null && gameObject.name.Equals("Unit1")){
-				GUI.Label(new Rect(0,10,100,50), "");
-			}
-		}
-
-		public void SetUnitPointCloud(UnitPointCloud pointCloud){
-			dots = pointCloud.VectorList;
+		public void SetUnitPointCloud(List<SportsTimeMachine.Data.Commons.Vector3> pointCloud){
+			if (pointCloud == null) return;
+			dots = pointCloud;
 			if (dots != null && dots.Count != 0) SetPoints(dots);
 		}
 	

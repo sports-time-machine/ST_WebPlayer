@@ -7,6 +7,8 @@ using SportsTimeMachinePlayer.Common;
 using ICSharpCode.SharpZipLib.Zip;
 using SportsTimeMachine.IO;
 using SportsTimeMachine.Data.Tracks;
+using System.Security;
+using System.Text;
 
 namespace SportsTimeMachinePlayer.Fields
 {
@@ -17,10 +19,29 @@ namespace SportsTimeMachinePlayer.Fields
 	/// </summary>
 	public class LoadManager : MonoBehaviour 
 	{
+
+		
+		/// <summary>
+		/// パスコード.
+		/// サーバー側と一致すること.
+		/// </summary>
+		public string passcode;
+		
+		/// <summary>
+		/// ホスト名.
+		/// </summary>
+		public string hostname;
+		
+		public delegate void getRecieverEvent (String url);
+		private getRecieverEvent recieveEv;
+		
+	
 		/// <summary>
 		/// ファイル名.DIされる.
 		/// </summary>
 		public string filename;
+
+		public bool isDebug;
 
 		// ダウンロード完了イベント
 		public event EventHandler DownLoadCompleted = delegate(object s, EventArgs e){};
@@ -48,14 +69,19 @@ namespace SportsTimeMachinePlayer.Fields
 		/// </summary>
 		public void Load(){
 
-			string path = Application.dataPath + "/" + filename + ".zip";
-
 			if (Application.isWebPlayer)
 			{
-				StartCoroutine(WebLoad(path));
+				string path = "";
+				if (isDebug) {
+					path = Application.dataPath + "/" + filename + ".zip";
+					StartCoroutine(WebLoad(path));
+				}else{
+					Application.ExternalCall ("getData");
+				}
 			}
 			else
 			{
+				string path = Application.dataPath + "/" + filename + ".zip";
 				trackStream = new FileStream(path, FileMode.Open, FileAccess.Read);
 				TrackReader reader = new TrackReader(trackStream);
 				reader.ReadProgressing += OnReadProgressing;
@@ -109,6 +135,37 @@ namespace SportsTimeMachinePlayer.Fields
 			LoadProgressing(e.Value);
 		}
 
+		void Recieve(String listString)
+		{
+			String[] paramStrings = listString.Split (',');
+
+			String userId = paramStrings [0];
+			String recordId = paramStrings [1];
+			String hash = paramStrings [2];
+
+			// ハッシュ値計算.
+			// テキストをUTF-8エンコードでバイト配列化
+			byte[] byteValue = Encoding.UTF8.GetBytes(userId + recordId + passcode);
+			// MD5のハッシュ値を取得する
+			System.Security.Cryptography.MD5 md5 =
+				System.Security.Cryptography.MD5.Create ();
+			byte[] bs = md5.ComputeHash(byteValue);
+			md5.Clear ();
+			String generateHash = BitConverter.ToString(bs).ToLower().Replace("-","");
+			if (!hash.Equals(generateHash)){
+				throw new SecurityException("ハッシュ値が異なります.生成されたhash:" + generateHash);
+			}
+
+			string userIdUrl = "";
+			for (int i = userId.Length -1 ; i >= 0; i--){
+				userIdUrl += userId[i] + "/";
+			}
+
+			string path = hostname + userIdUrl + recordId + ".zip";
+
+			StartCoroutine(WebLoad(path));
+
+		}			
 	}
 }
 
